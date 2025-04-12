@@ -14,7 +14,7 @@ Before running the system, you need to set the following environment variables:
 
 ```bash
 # Set your architecture (arm64 or amd64)
-export ARCH=arm64  # or amd64
+export ARCH=amd64  # or arm64
 
 # Set your GitHub credentials
 export GITHUB_OAUTH=your_github_oauth_token
