@@ -1,0 +1,235 @@
+version: '3.8'
+
+services:
+
+  # MySQL Service
+  mysql:
+    image: sbi98/mysql:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # SEFA Services
+  #NOTE: there is no amd64 version of the eureka image, so we need to use the arm64 version
+  #TODO: Create image for amd64 if neceessary
+  sefa-eureka:
+    image: sbi98/sefa-eureka:arm64
+    networks:
+      - ramses-sas-net
+    ports:
+      - "8761:8761"
+    depends_on:
+      - mysql
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+#NOTE: there is no amd64 version of the configserver image, so we need to use the arm64 version
+#TODO: Create image for amd64 if neceessary
+  sefa-configserver:
+    image: sbi98/sefa-configserver:arm64
+    networks:
+      - ramses-sas-net
+    environment:
+      - GITHUB_REPOSITORY_URL=${GITHUB_REPOSITORY_URL}
+    ports:
+      - "8888:8888"
+    depends_on:
+      - sefa-eureka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  sefa-restaurant-service:
+    image: sbi98/sefa-restaurant-service:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-ordering-service:
+    image: sbi98/sefa-ordering-service:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-payment-proxy-1-service:
+    image: sbi98/sefa-payment-proxy-1-service:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-delivery-proxy-1-service:
+    image: sbi98/sefa-delivery-proxy-1-service:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-web-service:
+    image: sbi98/sefa-web-service:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-api-gateway:
+    image: sbi98/sefa-api-gateway:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Additional proxy services
+  sefa-payment-proxy-2-service:
+    image: sbi98/sefa-payment-proxy-2-service:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-delivery-proxy-2-service:
+    image: sbi98/sefa-delivery-proxy-2-service:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-payment-proxy-3-service:
+    image: sbi98/sefa-payment-proxy-3-service:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-delivery-proxy-3-service:
+    image: sbi98/sefa-delivery-proxy-3-service:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  # Probe and Actuators
+  sefa-probe:
+    image: sbi98/sefa-probe:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-instances-manager:
+    image: sbi98/sefa-instances-manager:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  sefa-config-manager:
+    image: sbi98/sefa-config-manager:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    environment:
+      - GITHUB_OAUTH=${GITHUB_OAUTH}
+      - GITHUB_REPOSITORY_URL=${GITHUB_REPOSITORY_URL}
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  # RAMSES Services
+  ramses-knowledge:
+    image: sbi98/ramses-knowledge:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  ramses-analyse:
+    image: sbi98/ramses-analyse:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  ramses-plan:
+    image: sbi98/ramses-plan:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  ramses-execute:
+    image: sbi98/ramses-execute:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  ramses-monitor:
+    image: sbi98/ramses-monitor:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  ramses-dashboard:
+    image: sbi98/ramses-dashboard:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+
+  # Load Generator (optional)
+  sefa-load-generator:
+    image: sbi98/sefa-load-generator:${ARCH:-arm64}
+    networks:
+      - ramses-sas-net
+    depends_on:
+      - sefa-configserver
+      - sefa-eureka
+      - sefa-api-gateway
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - load-generator
+
+networks:
+  ramses-sas-net:
+    driver: bridge 
