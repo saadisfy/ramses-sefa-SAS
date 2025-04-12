@@ -131,7 +131,7 @@ echo; PrintSuccess "DONE!"; echo
 echo; PrintWarn "A load generator is also available on Docker Hub. The image is sbi98/sefa-load-generator. Do you want to run it? Y/n"; echo 
 
 read decision
-if [[$decision = "Y" || $decision = "y"]]; then
+if [[ $decision = "Y" || $decision = "y" ]]; then
    loadgen
 else 
    echo "Exiting. You can run only the load generator by running this script with the -l flag."
