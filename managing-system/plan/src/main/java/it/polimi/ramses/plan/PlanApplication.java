@@ -13,6 +13,7 @@ public class PlanApplication {
 
     public static void main(String[] args) throws Exception {
         String os = System.getProperty("os.name");
+        //TODO: the library tool only works for arm64. So even using the amd64 image for RAMSES Plan, it will internly use arm64
         String filename1;
         if (os.toLowerCase().contains("nux"))
             filename1 = "libjniortools.so";
