@@ -56,13 +56,13 @@ sleep 2
 echo; PrintSuccess "Setting up the Managed System, SEFA!"; echo 
 
 PrintSuccess "Setting up Netflix Eureka Server"
-docker pull sbi98/sefa-eureka:$ARCH
-docker run -P --name sefa-eureka -d --network ramses-sas-net sbi98/sefa-eureka:$ARCH
+docker pull sbi98/sefa-eureka:arm64 #NOTE: there is no amd64 version of the eureka image, so we need to use the arm64 version
+docker run -P --name sefa-eureka -d --network ramses-sas-net sbi98/sefa-eureka:arm64
 echo
 sleep 2
 PrintSuccess "Setting up Spring Config Server"
-docker pull sbi98/sefa-configserver:$ARCH
-docker run -P --name sefa-configserver -e GITHUB_REPOSITORY_URL=$GITHUB_REPOSITORY_URL -d --network ramses-sas-net sbi98/sefa-configserver:$ARCH
+docker pull sbi98/sefa-configserver:arm64 #NOTE: there is no amd64 version of the configserver image, so we need to use the arm64 version
+docker run -P --name sefa-configserver -e GITHUB_REPOSITORY_URL=$GITHUB_REPOSITORY_URL -d --network ramses-sas-net sbi98/sefa-configserver:arm64
 echo
 sleep 10
 
@@ -117,7 +117,7 @@ sleep 1
 ##### RAMSES #####
 echo; PrintSuccess "Setting up the Managing System, RAMSES!"; echo 
 
-declare -a ramsesarr=("ramses-knowledge" "ramses-analyse" "ramses-plan" "ramses-execute" "ramses-monitor" "ramses-dashboard")
+declare -a ramsesarr=("ramses-knowledge" "ramses-analyse" "ramses-execute" "ramses-monitor" "ramses-dashboard")
 for i in "${ramsesarr[@]}"
 do
    PrintSuccess "Pulling $i"
@@ -126,6 +126,18 @@ do
    echo
    sleep 1
 done
+
+declare -a ramsesarr=("ramses-plan")
+for i in "${ramsesarr[@]}"
+do
+   PrintSuccess "Pulling $i"
+   docker pull sbi98/$i:arm64 #NOTE: the microservice uses libraries based on arm64. Running with tag "amd64" doesn't work
+   docker run -P --name $i -d --network ramses-sas-net sbi98/$i:arm64
+   echo
+   sleep 1
+done
+
+
 
 echo; PrintSuccess "DONE!"; echo 
 echo; PrintWarn "A load generator is also available on Docker Hub. The image is sbi98/sefa-load-generator. Do you want to run it? Y/n"; echo 
