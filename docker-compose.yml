@@ -1,5 +1,11 @@
-services:
 
+# The services are organized with proper dependencies:
+# - MySQL is started first
+# - Eureka server depends on MySQL
+# - Config server depends on Eureka
+# - All other services depend on both Config server and Eureka
+
+services:
   # MySQL Service
   mysql:
     image: sbi98/mysql:${ARCH:-arm64}
