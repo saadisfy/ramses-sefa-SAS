@@ -4,15 +4,14 @@ services:
   mysql:
     image: sbi98/mysql:${ARCH:-arm64}
     container_name: mysql
+    hostname: mysql
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - mysql
     ports:
       - "3306:3306"
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+
 
   # SEFA Services
   #NOTE: there is no amd64 version of the eureka image, so we need to use the arm64 version
@@ -20,266 +19,283 @@ services:
   sefa-eureka:
     image: sbi98/sefa-eureka:arm64
     container_name: sefa-eureka
+    hostname: sefa-eureka
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-eureka
     ports:
       - "58082:58082"
-    depends_on:
-      - mysql
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
 #NOTE: there is no amd64 version of the configserver image, so we need to use the arm64 version
 #TODO: Create image for amd64 if neceessary
   sefa-configserver:
     image: sbi98/sefa-configserver:arm64
     container_name: sefa-configserver
+    hostname: sefa-configserver
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-configserver
     environment:
       - GITHUB_REPOSITORY_URL=${GITHUB_REPOSITORY_URL}
     ports:
       - "8888:8888"
-    depends_on:
-      - sefa-eureka
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   sefa-restaurant-service:
     image: sbi98/sefa-restaurant-service:${ARCH:-arm64}
     container_name: sefa-restaurant-service
+    hostname: sefa-restaurant-service
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-restaurant-service
+          - RESTAURANT-SERVICE
     ports:
       - "58085:58085"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   sefa-ordering-service:
     image: sbi98/sefa-ordering-service:${ARCH:-arm64}
     container_name: sefa-ordering-service
+    hostname: sefa-ordering-service
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-ordering-service
+          - ORDERING-SERVICE
     ports:
       - "58086:58086"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   sefa-payment-proxy-1-service:
     image: sbi98/sefa-payment-proxy-1-service:${ARCH:-arm64}
     container_name: sefa-payment-proxy-1-service
+    hostname: sefa-payment-proxy-1-service
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-payment-proxy-1-service
+          - PAYMENT-PROXY-1-SERVICE
     ports:
       - "58090:58090"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   sefa-delivery-proxy-1-service:
     image: sbi98/sefa-delivery-proxy-1-service:${ARCH:-arm64}
     container_name: sefa-delivery-proxy-1-service
+    hostname: sefa-delivery-proxy-1-service
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-delivery-proxy-1-service
+          - DELIVERY-PROXY-1-SERVICE
     ports:
       - "58095:58095"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   sefa-web-service:
     image: sbi98/sefa-web-service:${ARCH:-arm64}
     container_name: sefa-web-service
+    hostname: sefa-web-service
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-web-service
+          - WEB-SERVICE
     ports:
       - "58080:58080"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   sefa-api-gateway:
     image: sbi98/sefa-api-gateway:${ARCH:-arm64}
     container_name: sefa-api-gateway
+    hostname: sefa-api-gateway
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-api-gateway
+          - API-GATEWAY-SERVICE
     ports:
       - "58081:58081"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   # Additional proxy services
   sefa-payment-proxy-2-service:
     image: sbi98/sefa-payment-proxy-2-service:${ARCH:-arm64}
     container_name: sefa-payment-proxy-2-service
+    hostname: sefa-payment-proxy-2-service
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-payment-proxy-2-service
+          - PAYMENT-PROXY-2-SERVICE
     ports:
       - "58091:58091"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   sefa-delivery-proxy-2-service:
     image: sbi98/sefa-delivery-proxy-2-service:${ARCH:-arm64}
     container_name: sefa-delivery-proxy-2-service
+    hostname: sefa-delivery-proxy-2-service
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-delivery-proxy-2-service
+          - DELIVERY-PROXY-2-SERVICE
     ports:
       - "58096:58096"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   sefa-payment-proxy-3-service:
     image: sbi98/sefa-payment-proxy-3-service:${ARCH:-arm64}
     container_name: sefa-payment-proxy-3-service
+    hostname: sefa-payment-proxy-3-service
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-payment-proxy-3-service
+          - PAYMENT-PROXY-3-SERVICE
     ports:
       - "58092:58092"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   sefa-delivery-proxy-3-service:
     image: sbi98/sefa-delivery-proxy-3-service:${ARCH:-arm64}
     container_name: sefa-delivery-proxy-3-service
+    hostname: sefa-delivery-proxy-3-service
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-delivery-proxy-3-service
+          - DELIVERY-PROXY-3-SERVICE
     ports:
       - "58097:58097"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   # Probe and Actuators
   sefa-probe:
     image: sbi98/sefa-probe:${ARCH:-arm64}
     container_name: sefa-probe
+    hostname: sefa-probe
     networks:
-      - ramses-sas-net
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
+      ramses-sas-net:
+        aliases:
+          - sefa-probe
 
   sefa-instances-manager:
     image: sbi98/sefa-instances-manager:${ARCH:-arm64}
     container_name: sefa-instances-manager
+    hostname: sefa-instances-manager
     networks:
-      - ramses-sas-net
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
+      ramses-sas-net:
+        aliases:
+          - sefa-instances-manager
 
   sefa-config-manager:
     image: sbi98/sefa-config-manager:${ARCH:-arm64}
     container_name: sefa-config-manager
+    hostname: sefa-config-manager
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - sefa-config-manager
     environment:
       - GITHUB_OAUTH=${GITHUB_OAUTH}
       - GITHUB_REPOSITORY_URL=${GITHUB_REPOSITORY_URL}
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
 
   # RAMSES Services
   ramses-knowledge:
     image: sbi98/ramses-knowledge:${ARCH:-arm64}
     container_name: ramses-knowledge
+    hostname: ramses-knowledge
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - ramses-knowledge
     ports:
       - "58005:58005"
     depends_on:
-      - sefa-configserver
       - sefa-eureka
-
-  ramses-analyse:
-    image: sbi98/ramses-analyse:${ARCH:-arm64}
-    container_name: ramses-analyse
-    networks:
-      - ramses-sas-net
-    ports:
-      - "58002:58002"
-    depends_on:
       - sefa-configserver
-      - sefa-eureka
-
-  ramses-plan:
-    image: sbi98/ramses-plan:${ARCH:-arm64}
-    container_name: ramses-plan
-    networks:
-      - ramses-sas-net
-    ports:
-      - "58003:58003"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
-
-  ramses-execute:
-    image: sbi98/ramses-execute:${ARCH:-arm64}
-    container_name: ramses-execute
-    networks:
-      - ramses-sas-net
-    ports:
-      - "58004:58004"
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
+    environment:
+      - EUREKA_IP_PORT=sefa-eureka:58082
+      - CONFIG_SERVER_IP_PORT=sefa-configserver:8888
 
   ramses-monitor:
     image: sbi98/ramses-monitor:${ARCH:-arm64}
     container_name: ramses-monitor
+    hostname: ramses-monitor
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - ramses-monitor
     ports:
       - "58001:58001"
     depends_on:
-      - sefa-configserver
-      - sefa-eureka
+      ramses-knowledge:
+        condition: service_healthy
+    environment:
+      - KNOWLEDGE_URL=http://ramses-knowledge:58005
+      - EUREKA_IP_PORT=sefa-eureka:58082
+      - CONFIG_SERVER_IP_PORT=sefa-configserver:8888
+
+  ramses-analyse:
+    image: sbi98/ramses-analyse:${ARCH:-arm64}
+    container_name: ramses-analyse
+    hostname: ramses-analyse
+    networks:
+      ramses-sas-net:
+        aliases:
+          - ramses-analyse
+    ports:
+      - "58002:58002"
+    depends_on:
+      ramses-knowledge:
+        condition: service_healthy
+    environment:
+      - KNOWLEDGE_URL=http://ramses-knowledge:58005
+      - EUREKA_IP_PORT=sefa-eureka:58082
+      - CONFIG_SERVER_IP_PORT=sefa-configserver:8888
+
+  ramses-execute:
+    image: sbi98/ramses-execute:${ARCH:-arm64}
+    container_name: ramses-execute
+    hostname: ramses-execute
+    networks:
+      ramses-sas-net:
+        aliases:
+          - ramses-execute
+    ports:
+      - "58004:58004"
+    depends_on:
+      ramses-knowledge:
+        condition: service_healthy
+    environment:
+      - KNOWLEDGE_URL=http://ramses-knowledge:58005
+      - MONITOR_URL=http://ramses-monitor:58001
+      - INSTANCES_MANAGER_ACTUATOR_URL=http://sefa-instances-manager:58015
+      - CONFIG_MANAGER_ACTUATOR_URL=http://sefa-config-manager:58016
+      - EUREKA_IP_PORT=sefa-eureka:58082
+      - CONFIG_SERVER_IP_PORT=sefa-configserver:8888
 
   ramses-dashboard:
     image: sbi98/ramses-dashboard:${ARCH:-arm64}
     container_name: ramses-dashboard
+    hostname: ramses-dashboard
     networks:
-      - ramses-sas-net
+      ramses-sas-net:
+        aliases:
+          - ramses-dashboard
     ports:
       - "58000:58000"
     depends_on:
-      - sefa-configserver
-      - sefa-eureka
+      ramses-knowledge:
+        condition: service_healthy
+    environment:
+      - KNOWLEDGE_URL=http://ramses-knowledge:58005
+      - EUREKA_IP_PORT=sefa-eureka:58082
+      - CONFIG_SERVER_IP_PORT=sefa-configserver:8888
 
   # Load Generator (optional)
   sefa-load-generator:
     image: sbi98/sefa-load-generator:${ARCH:-arm64}
     container_name: sefa-load-generator
+    hostname: sefa-load-generator
     networks:
-      - ramses-sas-net
-    depends_on:
-      - sefa-configserver
-      - sefa-eureka
-      - sefa-api-gateway
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      ramses-sas-net:
+        aliases:
+          - sefa-load-generator
     profiles:
       - load-generator
 
