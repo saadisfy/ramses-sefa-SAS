@@ -1,5 +1,28 @@
-**/.idea
-**/.DS_Store
+# Environment variables
+.env
+
+# IDE specific files
+.idea/
+.vscode/
+*.iml
+
+# Build outputs
+target/
+build/
+*.jar
+*.war
+
+# Logs
+*.log
+logs/
+
+# Docker
+docker-compose.override.yml
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
 ARCHIVE/*
 
 
@@ -7,9 +30,6 @@ ARCHIVE/*
 **/*.class
 **/.gradle
 **/build
-
-# Log file
-**/*.log
 
 # BlueJ files
 **/*.ctxt
