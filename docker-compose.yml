@@ -57,19 +57,11 @@ services:
     ports:
       - "8888:8888"
     healthcheck:
-      test: ["executable", "arg"]
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
       interval: 1m30s
       timeout: 30s
       retries: 5
       start_period: 30s
-    networks:
-      ramses-sas-net:
-        aliases:
-          - sefa-configserver
-    environment:
-      - GITHUB_REPOSITORY_URL=${GITHUB_REPOSITORY_URL}
-    ports:
-      - "8888:8888"
 
   # sefa-restaurant-service:
   #   image: sbi98/sefa-restaurant-service:${ARCH:-arm64}
