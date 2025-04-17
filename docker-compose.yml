@@ -35,7 +35,7 @@ services:
     ports:
       - "58082:58082"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://127.0.0.1:58082/"]
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:58082/eureka/"]
       interval: 10s
       timeout: 5s
       retries: 5
