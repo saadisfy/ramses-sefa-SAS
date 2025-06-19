@@ -353,6 +353,25 @@ services:
       - EUREKA_IP_PORT=sefa-eureka:58082
       - CONFIG_SERVER_IP_PORT=sefa-configserver:8888
 
+  ramses-plan:
+    image: sbi98/ramses-plan:arm64
+    container_name: ramses-plan
+    hostname: ramses-plan
+    networks:
+      ramses-sas-net:
+        aliases:
+          - ramses-plan
+    ports:
+      - "58003:58003"
+    depends_on:
+      ramses-knowledge:
+        condition: service_healthy
+    environment:
+      - KNOWLEDGE_URL=http://ramses-knowledge:58005
+      - EXECUTE_URL=http://ramses-execute:58004
+      - EUREKA_IP_PORT=sefa-eureka:58082
+      - CONFIG_SERVER_IP_PORT=sefa-configserver:8888
+
   # # Load Generator (optional)
   # sefa-load-generator:
   #   image: sbi98/sefa-load-generator:${ARCH:-arm64}
