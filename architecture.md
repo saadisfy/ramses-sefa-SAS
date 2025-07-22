@@ -79,7 +79,6 @@ flowchart TD
         RestaurantService[Restaurant Service]
         OrderingService[Ordering Service]
         PaymentProxy1[Payment Proxy 1]
-        PaymentProxy2[Payment Proxy 2]
         PaymentProxy3[Payment Proxy 3]
         DeliveryProxy1[Delivery Proxy 1]
         DeliveryProxy2[Delivery Proxy 2]
@@ -95,7 +94,6 @@ flowchart TD
         RestaurantService --> Eureka
         OrderingService --> Eureka
         PaymentProxy1 --> Eureka
-        PaymentProxy2 --> Eureka
         PaymentProxy3 --> Eureka
         DeliveryProxy1 --> Eureka
         DeliveryProxy2 --> Eureka
@@ -108,7 +106,6 @@ flowchart TD
         RestaurantService --> ConfigServer
         OrderingService --> ConfigServer
         PaymentProxy1 --> ConfigServer
-        PaymentProxy2 --> ConfigServer
         PaymentProxy3 --> ConfigServer
         DeliveryProxy1 --> ConfigServer
         DeliveryProxy2 --> ConfigServer
@@ -121,7 +118,6 @@ flowchart TD
         WebService --> RestaurantService
         WebService --> OrderingService
         OrderingService --> PaymentProxy1
-        OrderingService --> PaymentProxy2
         OrderingService --> PaymentProxy3
         OrderingService --> DeliveryProxy1
         OrderingService --> DeliveryProxy2
@@ -136,7 +132,6 @@ flowchart TD
         Probe --> RestaurantService
         Probe --> OrderingService
         Probe --> PaymentProxy1
-        Probe --> PaymentProxy2
         Probe --> PaymentProxy3
         Probe --> DeliveryProxy1
         Probe --> DeliveryProxy2
@@ -146,7 +141,6 @@ flowchart TD
         Actuator --> RestaurantService
         Actuator --> OrderingService
         Actuator --> PaymentProxy1
-        Actuator --> PaymentProxy2
         Actuator --> PaymentProxy3
         Actuator --> DeliveryProxy1
         Actuator --> DeliveryProxy2

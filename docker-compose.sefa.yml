@@ -1,0 +1,65 @@
+# SEFA Services Docker Compose
+# Services are organized with proper dependencies:
+# - MySQL is started first
+# - Eureka server depends on MySQL
+# - Config server depends on Eureka
+
+services:
+  # MySQL Service
+  mysql:
+    image: sbi98/mysql:${ARCH:-arm64}
+    networks:
+      ramses-sas-net:
+        aliases:
+          - mysql
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Eureka Service
+  sefa-eureka:
+    image: sbi98/sefa-eureka:arm64
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      ramses-sas-net:
+        aliases:
+          - sefa-eureka
+    ports:
+      - "58082:58082"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:58082/"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+      start_period: 200s
+
+  # Config Server Service
+  sefa-configserver:
+    image: sbi98/sefa-configserver:arm64
+    depends_on:
+      sefa-eureka:
+        condition: service_healthy
+    networks:
+      ramses-sas-net:
+        aliases:
+          - sefa-configserver
+    environment:
+      - GITHUB_REPOSITORY_URL=${GITHUB_REPOSITORY_URL}
+    ports:
+      - "8888:8888"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      interval: 1m30s
+      timeout: 30s
+      retries: 5
+      start_period: 30s
+
+networks:
+  ramses-sas-net:
+    external: true 
